@@ -1,0 +1,1 @@
+python src/main.py "/REPO_NAME/"

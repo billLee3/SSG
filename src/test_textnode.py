@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, text_node_to_html_node, extract_markdown_images
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -11,13 +11,42 @@ class TestTextNode(unittest.TestCase):
     
     def test_input_eq(self):
         node1 = TextNode("This is a text node", TextType.BOLD)
-        node2 = TextNode("This is a text node", TextType.ITALICS)
+        node2 = TextNode("This is a text node", TextType.ITALIC)
         self.assertEqual(node1.url, node2.url)
     
     def test_not_eq(self):
-        node1 = TextNode("This is the first text node", TextType.ITALICS)
+        node1 = TextNode("This is the first text node", TextType.ITALIC)
         node2 = TextNode("This is the second text node", TextType.BOLD)
         self.assertNotEqual(node1, node2)
+
+class TestTextNodeToHTMLNode(unittest.TestCase):
+    def test_text(self):
+        node = TextNode("This is a text node", TextType.TEXT)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, None)
+        self.assertEqual(html_node.value, "This is a text node")
+
+    def test_image(self):
+        node = TextNode("This is an image", TextType.IMAGE, "https://www.boot.dev")
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "img")
+        self.assertEqual(html_node.value, "")
+        self.assertEqual(
+            html_node.props,
+            {"src": "https://www.boot.dev", "alt": "This is an image"},
+        )
+
+    def test_bold(self):
+        node = TextNode("This is bold", TextType.BOLD)
+        html_node = text_node_to_html_node(node)
+        self.assertEqual(html_node.tag, "b")
+        self.assertEqual(html_node.value, "This is bold")
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images(
+        "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
 
 if __name__ == "__main__":
     unittest.main()
