@@ -1,1 +1,1 @@
-python src/main.py "/REPO_NAME/"
+python src/main.py "/SSG/"
